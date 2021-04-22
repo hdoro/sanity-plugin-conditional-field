@@ -1,0 +1,38 @@
+{
+  "name": "sanity-plugin-conditional-field",
+  "version": "0.0.1",
+  "description": "Hide or show a Sanity.io field based on a custom condition set by you.",
+  "main": "lib/ConditionalField.js",
+  "scripts": {
+    "format": "prettier --write .",
+    "clear-lib": "node clearLib.js",
+    "build": "npm run format && npm run clear-lib && tsc",
+    "dev": "tsc -w",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/hdoro/sanity-plugin-conditional-field.git"
+  },
+  "keywords": [
+    "sanity.io",
+    "sanity",
+    "slug",
+    "sanity-plugin"
+  ],
+  "author": "Henrique Doro <opensource@hdoro.dev>",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@sanity/base": ">= 2.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.2"
+  },
+  "bugs": {
+    "url": "https://github.com/hdoro/sanity-plugin-conditional-field/issues"
+  },
+  "homepage": "https://github.com/hdoro/sanity-plugin-conditional-field#readme"
+}
