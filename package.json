@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-conditional-field",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Hide or show a Sanity.io field based on a custom condition set by you.",
   "main": "lib/ConditionalField.js",
   "scripts": {

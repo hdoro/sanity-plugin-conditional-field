@@ -22,25 +22,35 @@ class ConditionalField extends React.PureComponent<any> {
     const removeItems = -Math.abs(level)
     return valuePath.length + removeItems <= 0
       ? this.props.document
-      : valuePath.slice(0, removeItems).reduce((context, current) => {
-          // basic string path
-          if (typeof current === 'string') {
-            return context[current] || {}
-          }
+      : valuePath
+          .slice(0, removeItems)
+          .reduce(
+            (
+              context: Record<string, unknown>,
+              current: string | Record<string, unknown>,
+            ) => {
+              // basic string path
+              if (typeof current === 'string') {
+                return context[current] || {}
+              }
 
-          // object path with key used on arrays
-          if (
-            typeof current === 'object' &&
-            Array.isArray(context) &&
-            current._key
-          ) {
-            return (
-              context.filter(
-                item => item._key && item._key === current._key
-              )[0] || {}
-            )
-          }
-        }, this.props.document)
+              // object path with key used on arrays
+              if (
+                typeof current === 'object' &&
+                Array.isArray(context) &&
+                current._key
+              ) {
+                return (
+                  context.filter(
+                    (item) => item._key && item._key === current._key,
+                  )[0] || {}
+                )
+              }
+
+              return context
+            },
+            this.props.document,
+          )
   }
 
   render() {
@@ -58,8 +68,10 @@ class ConditionalField extends React.PureComponent<any> {
       presence = [],
       compareValue,
     } = this.props
-    const shouldRenderField(document, this.getContext.bind(this))
-    const renderField = shouldRenderField ? shouldRenderField(document) : true
+    const shouldRenderField = type?.options?.condition
+    const renderField = shouldRenderField
+      ? shouldRenderField(document, this.getContext.bind(this))
+      : true
 
     if (!renderField) {
       return <div style={{ marginBottom: '-32px' }} />

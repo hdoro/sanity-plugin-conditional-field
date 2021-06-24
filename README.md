@@ -2,6 +2,16 @@
 
 Hide or show a Sanity.io field based on a custom condition set by you.
 
+---
+
+🚨 **Warning:** I stopped working on this plugin before it was done as the Sanity team has voiced they're currently working on a native solution.
+
+This can still be useful if you have basic use cases for conditionals, but it [doesn't work well on arrays](https://github.com/hdoro/sanity-plugin-conditional-field/issues/2), has [issues with validation markers](https://github.com/hdoro/sanity-plugin-conditional-field/issues/1) and is visually a bit buggy.
+
+If in the meantime you _must_ rely on conditional fields, [reach me out in Sanity's community Slack](https://sanity-io-land.slack.com/team/UB1QTEXGC) and I'll try to help you out :)
+
+---
+
 ## Installation
 
 Start by enabling it in your studio:
@@ -52,7 +62,6 @@ export default {
   ],
 }
 ```
-
 
 🚨 **Big red alert**: this plugin simply _hides_ fields if conditions aren't met. It doesn't interfere with validation, meaning that if you set a conditioned field as required, editors won't be able to publish documents when it's hidden.
 
