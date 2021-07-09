@@ -1,12 +1,86 @@
 import React from 'react'
+import { SanityDocument } from '@sanity/client'
 import {
   withDocument,
   withValuePath,
   FormBuilderInput,
 } from 'part:@sanity/form-builder'
+import { PatchEvent, unset } from 'part:@sanity/form-builder/patch-event'
+import HiddenField from './HiddenField'
+import getParents, { Parent } from './getParents'
 
-class ConditionalField extends React.PureComponent<any> {
+type RenderInfo = {
+  renderField: boolean
+  clearOnHidden: boolean
+}
+
+type ConditionReturn = boolean | { hidden: boolean; clearOnHidden?: boolean }
+
+export type HideFunction = (props: {
+  document: SanityDocument
+  parents: Parent[]
+}) => ConditionReturn | Promise<ConditionReturn>
+
+export type HideOption = boolean | HideFunction
+
+const DEFAULT_STATE: RenderInfo = {
+  renderField: true,
+  clearOnHidden: false,
+}
+
+async function parseCondition({
+  document,
+  hide,
+  parents,
+}: {
+  document: SanityDocument
+  hide?: HideOption
+  parents: Parent[]
+}): Promise<RenderInfo> {
+  if (typeof hide === 'boolean') {
+    return {
+      ...DEFAULT_STATE,
+      renderField: !hide,
+    }
+  }
+
+  if (!hide || typeof hide !== 'function') {
+    return DEFAULT_STATE
+  }
+
+  try {
+    const hideField = await Promise.resolve(hide({ document, parents }))
+
+    if (typeof hideField === 'boolean') {
+      return {
+        renderField: !hideField,
+        clearOnHidden: false,
+      }
+    }
+
+    return {
+      renderField: !(typeof hideField.hidden === 'boolean'
+        ? hideField.hidden
+        : // Don't hide by default
+          false),
+      clearOnHidden: hideField.clearOnHidden || false,
+    }
+  } catch (error) {
+    console.info('conditional-field: error running your `hide` condition', {
+      error,
+    })
+
+    return DEFAULT_STATE
+  }
+}
+
+class ConditionalField extends React.PureComponent<any, RenderInfo> {
   fieldRef: any = React.createRef()
+
+  constructor(props: any) {
+    super(props)
+    this.state = DEFAULT_STATE
+  }
 
   focus() {
     if (this.fieldRef?.current) {
@@ -14,7 +88,7 @@ class ConditionalField extends React.PureComponent<any> {
     }
   }
 
-  getContext(level = 1) {
+  getContext = (level = 1) => {
     // gets value path from withValuePath HOC, and applies path to document
     // we remove the last 𝑥 elements from the valuePath
 
@@ -53,9 +127,29 @@ class ConditionalField extends React.PureComponent<any> {
           )
   }
 
+  updateRender = async () => {
+    const newState = await parseCondition({
+      document: this.props.document,
+      hide: this.props.type?.options?.hide,
+      parents: getParents({
+        valuePath: this.props.getValuePath(),
+        document: this.props.document,
+      }),
+    })
+
+    this.setState(newState)
+  }
+
+  componentDidUpdate() {
+    this.updateRender()
+  }
+
+  componentDidMount() {
+    this.updateRender()
+  }
+
   render() {
     const {
-      document,
       type,
       value,
       level,
@@ -68,13 +162,14 @@ class ConditionalField extends React.PureComponent<any> {
       presence = [],
       compareValue,
     } = this.props
-    const shouldRenderField = type?.options?.condition
-    const renderField = shouldRenderField
-      ? shouldRenderField(document, this.getContext.bind(this))
-      : true
+
+    const { renderField, clearOnHidden } = this.state
 
     if (!renderField) {
-      return <div style={{ marginBottom: '-32px' }} />
+      if (clearOnHidden && value) {
+        onChange(PatchEvent.from(unset()))
+      }
+      return <HiddenField />
     }
 
     const { type: _unusedType, inputComponent, ...usableType } = type
@@ -89,7 +184,11 @@ class ConditionalField extends React.PureComponent<any> {
         onFocus={onFocus}
         onBlur={onBlur}
         ref={this.fieldRef}
-        markers={markers}
+        markers={markers.map((marker: any) => ({
+          ...marker,
+          // Pass the right path for validation markers
+          path: getValuePath(),
+        }))}
         presence={presence}
         compareValue={compareValue}
       />
