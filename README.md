@@ -1,14 +1,14 @@
 # sanity-plugin-conditional-field
 
-Hide or show a Sanity.io field based on a custom condition set by you.
+<!-- Hide or show a Sanity.io field based on a custom condition set by you. -->
 
 ---
 
-🚨 **Warning:** the Sanity team has voiced they're currently working on a native solution. The goal of this plugin is to become obsolete.
+🚨 **Warning:** as of [2.17.0](https://github.com/sanity-io/sanity/releases/tag/v2.17.0), Sanity now has [native support to conditional fields](https://www.sanity.io/docs/conditional-fields). Use that instead of this package, which is now archived.
 
 ---
 
-## Installation
+<!-- ## Installation
 
 Start by enabling it in your studio:
 
@@ -192,3 +192,4 @@ Besides this, the following is true:
 
 - Async conditions aren't debounced, meaning they'll be fired _a lot_
 - There's no way of using this field with custom inputs
+ -->
